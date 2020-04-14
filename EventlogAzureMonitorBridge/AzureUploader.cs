@@ -27,42 +27,50 @@ namespace EventlogAzureMonitorBridge
 
         public async Task PorlingMessagesAsync(CancellationToken cancellationToken)
         {
+            var lotsize = 200;
+            var waitTime = 5569; // 23, 3343, 5569, 10567　... prime numbers
             while (cancellationToken.IsCancellationRequested == false)
             {
-                await Task.Delay(10567, cancellationToken); // upload 10s each to reduce request count to Azure.
+                await Task.Delay(waitTime, cancellationToken); // upload 10s each to reduce request count to Azure.
 
+                var recs = new List<LogRecord>();
                 var queue = Messages?.Invoke();
-                List<EventlogMessageEventArgs> chunk;
-
                 lock (queue)
                 {
-                    chunk = queue.ToList();
-                    queue.Clear();
+                    for (var i = 0; i < lotsize && queue.Count > 0; i++)
+                    {
+                        var ev = queue.Dequeue();
+                        var rec = new LogRecord
+                        {
+                            EventTime = ev.EventUtcTime,
+                            Facility = $"Eventlog.{ev.LogName}",
+                            SeverityLevel = ev.Level,
+                            Computer = ev.Computer,
+                            HostIP = null,
+                            HostName = null,
+                            SyslogMessage = ev.Message,
+                            RecordID = ev.EventRecordID,
+                            EventID = ev.EventID,
+                            User = ev.User,
+                            OpCode = ev.OpCode,
+                            TaskCategory = ev.TaskCategory,
+                            Keywords = ev.Keywords,
+                        };
+                        recs.Add(rec);
+                    }
                 }
-                if (chunk.Count < 1)
+                if (recs.Count == 0)
                 {
+                    waitTime = 10567;
                     continue;
                 }
-                var recs = new List<LogRecord>();
-                foreach (var ev in chunk)
+                else if (recs.Count == lotsize)
                 {
-                    var rec = new LogRecord
-                    {
-                        EventTime = ev.EventUtcTime,
-                        Facility = $"Eventlog.{ev.LogName}",
-                        SeverityLevel = ev.Level,
-                        Computer = ev.Computer,
-                        HostIP = null,
-                        HostName = null,
-                        SyslogMessage = ev.Message,
-                        RecordID = ev.EventRecordID,
-                        EventID = ev.EventID,
-                        User = ev.User,
-                        OpCode = ev.OpCode,
-                        TaskCategory = ev.TaskCategory,
-                        Keywords = ev.Keywords,
-                    };
-                    recs.Add(rec);
+                    waitTime = 23;
+                }
+                else
+                {
+                    waitTime = 3343;
                 }
                 var jsonStr = JsonConvert.SerializeObject(recs, new IsoDateTimeConverter());
                 var datestring = DateTime.UtcNow.ToString("r");

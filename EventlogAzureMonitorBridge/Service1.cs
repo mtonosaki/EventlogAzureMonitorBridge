@@ -70,18 +70,18 @@ namespace EventlogAzureMonitorBridge
             var task2 = uploader.PorlingMessagesAsync(CancelHandler.Token);
         }
 
-        private void Listener_OnError(object sender, EventlogErrorEventArgs e)
-        {
-            eventlog(e.Exception.Message);
-            Stop();
-        }
-
         private void Listener_OnMessage(object sender, EventlogMessageEventArgs e)
         {
             lock (Messages)
             {
                 Messages.Enqueue(e);
             }
+        }
+
+        private void Listener_OnError(object sender, EventlogErrorEventArgs e)
+        {
+            eventlog(e.Exception.Message);
+            Stop();
         }
 
         public void OnStartConsole(string[] args)
