@@ -48,13 +48,19 @@ namespace EventlogAzureMonitorBridge
                 {
                     var rec = new LogRecord
                     {
+                        EventTime = ev.EventUtcTime,
                         Facility = $"Eventlog.{ev.LogName}",
                         SeverityLevel = ev.Level,
-                        EventTime = ev.EventUtcTime,
                         Computer = ev.Computer,
-                        SyslogMessage = ev.Message,
                         HostIP = null,
-                        HostName = "(n/a)",
+                        HostName = null,
+                        SyslogMessage = ev.Message,
+                        RecordID = ev.EventRecordID,
+                        EventID = ev.EventID,
+                        User = ev.User,
+                        OpCode = ev.OpCode,
+                        TaskCategory = ev.TaskCategory,
+                        Keywords = ev.Keywords,
                     };
                     recs.Add(rec);
                 }
@@ -87,18 +93,18 @@ namespace EventlogAzureMonitorBridge
             try
             {
                 var url = "https://" + WorkspaceID + ".ods.opinsights.azure.com/api/logs?api-version=2016-04-01";
-                var request = new HttpRequestMessage(HttpMethod.Post, url);
-                request.Headers.Add("Accept", "application/json");
-                request.Headers.Add("Log-Type", LogName);
-                request.Headers.Add("Authorization", signature);
-                request.Headers.Add("x-ms-date", date);
-                request.Headers.Add("time-generated-field", "");
+                var req = new HttpRequestMessage(HttpMethod.Post, url);
+                req.Headers.Add("Accept", "application/json");
+                req.Headers.Add("Log-Type", LogName);
+                req.Headers.Add("Authorization", signature);
+                req.Headers.Add("x-ms-date", date);
+                req.Headers.Add("time-generated-field", "");
                 var httpContent = new StringContent(json, Encoding.UTF8);
                 httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                request.Content = httpContent;
-                var response = client.SendAsync(request);
-                var responseContent = response.Result.Content;  // wait the responce of request
-                string result = responseContent.ReadAsStringAsync().Result;
+                req.Content = httpContent;
+                var res = client.SendAsync(req);
+                var responseContent = res.Result.Content;  // wait the responce of request
+                //var result = responseContent.ReadAsStringAsync().Result;
             }
             catch (Exception excep)
             {
