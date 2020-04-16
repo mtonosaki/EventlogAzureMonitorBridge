@@ -39,6 +39,7 @@
             // 
             // serviceInstaller1
             // 
+            this.serviceInstaller1.DelayedAutoStart = true;
             this.serviceInstaller1.Description = "A windows service to send Eventlog to Azure Monitor";
             this.serviceInstaller1.DisplayName = "Eventlog to AzureMonitor Bridge";
             this.serviceInstaller1.ServiceName = "EventlogAzureMonitorBridge";

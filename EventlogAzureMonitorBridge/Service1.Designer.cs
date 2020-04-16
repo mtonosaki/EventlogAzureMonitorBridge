@@ -31,6 +31,11 @@
             this.eventLog1 = new System.Diagnostics.EventLog();
             ((System.ComponentModel.ISupportInitialize)(this.eventLog1)).BeginInit();
             // 
+            // eventLog1
+            // 
+            this.eventLog1.Log = "Application";
+            this.eventLog1.Source = "EventlogAzureMonitorBridge";
+            // 
             // Service1
             // 
             this.ServiceName = "EventlogAzureMonitorBridge";

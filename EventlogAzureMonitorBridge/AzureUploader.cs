@@ -79,7 +79,9 @@ namespace EventlogAzureMonitorBridge
                 var hashedString = BuildSignature(stringToHash, Key1);
                 var signature = "SharedKey " + WorkspaceID + ":" + hashedString;
                 PostData(signature, datestring, jsonStr);
+#if DEBUG
                 Logger?.Invoke($"---- Sent {recs.Count} records at {DateTime.Now}", true);
+#endif
             }
         }
 
