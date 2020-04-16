@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration.Install;
+using System.Diagnostics.Eventing.Reader;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.ServiceProcess;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EventlogAzureMonitorBridge
@@ -16,7 +19,7 @@ namespace EventlogAzureMonitorBridge
         /// </summary>
         static void Main(string[] args)
         {
-            args = Environment.GetCommandLineArgs();   // Necessary to get command args
+			args = Environment.GetCommandLineArgs();   // Necessary to get command args
             var service = new Service1();
 
 			if (Environment.UserInteractive)    // Console version

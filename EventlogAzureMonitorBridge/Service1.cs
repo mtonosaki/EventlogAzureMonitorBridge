@@ -145,7 +145,7 @@ namespace EventlogAzureMonitorBridge
             }
             else
             {
-                eventLog1.WriteEntry(mes, isError ? EventLogEntryType.Error : EventLogEntryType.Information);
+                eventLogApp.WriteEntry(mes, isError ? EventLogEntryType.Error : EventLogEntryType.Information);
             }
         }
     }

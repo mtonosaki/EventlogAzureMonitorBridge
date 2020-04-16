@@ -28,23 +28,23 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.eventLog1 = new System.Diagnostics.EventLog();
-            ((System.ComponentModel.ISupportInitialize)(this.eventLog1)).BeginInit();
+            this.eventLogApp = new System.Diagnostics.EventLog();
+            ((System.ComponentModel.ISupportInitialize)(this.eventLogApp)).BeginInit();
             // 
-            // eventLog1
+            // eventLogApp
             // 
-            this.eventLog1.Log = "Application";
-            this.eventLog1.Source = "EventlogAzureMonitorBridge";
+            this.eventLogApp.Log = "Application";
+            this.eventLogApp.Source = "EventlogAzureMonitorBridge";
             // 
             // Service1
             // 
             this.ServiceName = "EventlogAzureMonitorBridge";
-            ((System.ComponentModel.ISupportInitialize)(this.eventLog1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.eventLogApp)).EndInit();
 
         }
 
         #endregion
 
-        private System.Diagnostics.EventLog eventLog1;
+        private System.Diagnostics.EventLog eventLogApp;
     }
 }
