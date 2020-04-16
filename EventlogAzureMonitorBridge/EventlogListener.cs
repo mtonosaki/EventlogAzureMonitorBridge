@@ -42,7 +42,7 @@ namespace EventlogAzureMonitorBridge
                         {
                             try
                             {
-                                OnMessage?.Invoke(this, new EventlogMessageEventArgs
+                                var item = new EventlogMessageEventArgs
                                 {
                                     EventUtcTime = e.TimeGenerated.ToUniversalTime(),
                                     LogName = log.Log,
@@ -51,8 +51,9 @@ namespace EventlogAzureMonitorBridge
                                     EventRecordID = e.Index,
                                     User = e.UserName,
                                     Computer = e.MachineName,
-                                    Message = e.Message,
-                                });
+                                    Message = ReplaceMessage(e.Message),
+                                };
+                                OnMessage?.Invoke(this, item);
                                 nMessage++;
                             }
                             catch (Exception ex)
@@ -82,6 +83,31 @@ namespace EventlogAzureMonitorBridge
                     Exception = ex,
                 });
             }
+        }
+
+        static readonly List<(string From, string To)> ConvTable = new List<(string From, string To)>
+        {
+            ("%%1832" ,"Identification"),
+            ("%%1833" ,"Impersonation"),
+            ("%%1840" ,"Delegation"),
+            ("%%1841" ,"Denied by Process Trust Label ACE"),
+            ("%%1842" ,"Yes"),
+            ("%%1843" ,"No"),
+            ("%%1844" ,"System"),
+            ("%%1845" ,"Not Available"),
+            ("%%1846" ,"Default"),
+            ("%%1847" ,"DisallowMmConfig"),
+            ("%%1848" ,"Off"),
+            ("%%1849" ,"Auto"),
+        };
+
+        public string ReplaceMessage(string mes)
+        {
+            foreach (var conv in ConvTable)
+            {
+                mes = mes.Replace(conv.From, conv.To);
+            }
+            return mes;
         }
 
         private IEnumerable<EventLogEntry> GetEventLog(EventLog log, CancellationToken cancellationToken)
