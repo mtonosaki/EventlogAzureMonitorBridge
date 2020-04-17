@@ -21,7 +21,7 @@ namespace EventlogAzureMonitorBridge
         public string StatePath { set; private get; }
 
         /// <summary>
-        /// Listen UDP syslog message
+        /// Listen Windows Eventlog message
         /// </summary>
         /// <param name="cancellationToken"></param>
         public async Task RunAsync(CancellationToken cancellationToken)
