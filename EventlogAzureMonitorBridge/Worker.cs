@@ -19,14 +19,51 @@ namespace EventlogAzureMonitorBridge
 {
     public class Worker : BackgroundService
     {
-        private readonly ILogger<Worker> _logger;
-        private IConfiguration _config;
+        private EventlogListener listener;
+        private AzureUploader uploader;
 
-
+        /// <summary>
+        /// The constructor (called by framework)
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="config"></param>
         public Worker(ILogger<Worker> logger, IConfiguration config)
         {
-            _logger = logger;
-            _config = config;
+            listener = new EventlogListener
+            {
+                Messages = new Queue<EventlogMessage>(),
+                Logger = logger,
+            };
+
+            var laparam = config.GetSection("LogAnalytics");
+            uploader = new AzureUploader
+            {
+                Messages = listener.Messages,
+                Logger = logger,
+                WorkspaceID = laparam["WorkspaceID"],
+                PrimaryKey = laparam["PrimaryKey"],
+                LogName = laparam["LogName"],
+            };
+            var nErr = 0;
+            if( uploader.WorkspaceID == null)
+            {
+                logger.LogError($"ERROR: Blank WorkspaceID in appsettings.json");
+                nErr++;
+            }
+            if (uploader.PrimaryKey == null)
+            {
+                logger.LogError($"ERROR: Blank PrimaryKey in appsettings.json");
+                nErr++;
+            }
+            if (uploader.LogName == null)
+            {
+                logger.LogError($"ERROR: Blank LogName in appsettings.json");
+                nErr++;
+            }
+            if( nErr > 0)
+            {
+                throw new ArgumentNullException("invalid appsettings.json");
+            }
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -36,28 +73,10 @@ namespace EventlogAzureMonitorBridge
 #else
             await Task.Delay(5531, stoppingToken);
 #endif
-            var listener = new EventlogListener
-            {
-                Messages = new Queue<EventlogMessage>(),
-                Logger = _logger,
-            };
-
-            var config = _config.GetSection("LogAnalytics");
-
-            var uploader = new AzureUploader
-            {
-                Messages = listener.Messages,
-                Logger = _logger,
-                WorkspaceID = config["PathLog"],
-                Key1 = config["PathLog"],
-                LogName = config["LogName"],
-            };
-
             while (!stoppingToken.IsCancellationRequested)
             {
                 var w1 = await listener.ListenAsync(stoppingToken);
                 var w2 = await uploader.UploadAsync(stoppingToken);
-
                 await Task.Delay(Math.Min(w1, w2), stoppingToken);
             }
         }

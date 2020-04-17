@@ -17,8 +17,14 @@ namespace EventlogAzureMonitorBridge
         public Queue<EventlogMessage> Messages { get; set; }
         public ILogger<Worker> Logger { get; set; }
         public string WorkspaceID { get; set; }
-        public string Key1 { get; set; }
+        public string PrimaryKey { get; set; }
         public string LogName { get; set; } = "Syslog";
+
+        /// <summary>
+        /// Upload thread
+        /// </summary>
+        /// <param name="stoppingToken"></param>
+        /// <returns></returns>
         public async Task<int> UploadAsync(CancellationToken stoppingToken)
         {
             var lotsize = 200;
@@ -57,9 +63,9 @@ namespace EventlogAzureMonitorBridge
             var datestring = DateTime.UtcNow.ToString("r");
             var jsonBytes = Encoding.UTF8.GetBytes(jsonStr);
             var stringToHash = "POST\n" + jsonBytes.Length + "\napplication/json\n" + "x-ms-date:" + datestring + "\n/api/logs";
-            var hashedString = BuildSignature(stringToHash, Key1);
+            var hashedString = BuildSignature(stringToHash, PrimaryKey);
             var signature = "SharedKey " + WorkspaceID + ":" + hashedString;
-            await PostDataAsync(signature, datestring, jsonStr);
+            //await PostDataAsync(signature, datestring, jsonStr);
 #if DEBUG
             Logger.LogTrace($"---- Sent {chunk.Count} records at {DateTime.Now}", true);
 #endif
