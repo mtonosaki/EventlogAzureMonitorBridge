@@ -5,5 +5,5 @@ A windows service to send Eventlog to Azure Monitor
 
 ## Development environment  
 Visual Studio (C#)  
-.NET Framework 4.7.2  
+.NET Core 3.1  
 Windows Service   
