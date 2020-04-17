@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "EventLogAzureMonitorBridge": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
