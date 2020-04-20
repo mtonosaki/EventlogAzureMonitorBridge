@@ -21,5 +21,10 @@ namespace EventlogAzureMonitorBridge
         public string OpCode { get; set; }      //- Info
         public string TaskCategory { get; set; } //- None
         public string Keywords { get; set; }    //- 
+
+        public override string ToString()
+        {
+            return $"{EventUtcTime} : {Message}";
+        }
     }
 }

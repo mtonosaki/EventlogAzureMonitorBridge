@@ -146,6 +146,7 @@ namespace EventlogAzureMonitorBridgeTest
             var ret = EventMessageConverter.ConvertFrom(str);
             Assert.AreEqual(str, ret);
         }
+
         [TestMethod]
         public void TestMethod_018()
         {
@@ -154,5 +155,118 @@ namespace EventlogAzureMonitorBridgeTest
             Assert.AreEqual(str, ret);
         }
 
+        [TestMethod]
+        public void TestMethod_101()
+        {
+            var str = @"abc_%{S-1-0}_de";
+            var ret = EventMessageConverter.ConvertFrom(str);
+            Assert.AreEqual("abc_Null Authority_de", ret);
+        }
+
+        [TestMethod]
+        public void TestMethod_102()
+        {
+            var str = @"%{S-1-0}_abc";
+            var ret = EventMessageConverter.ConvertFrom(str);
+            Assert.AreEqual("Null Authority_abc", ret);
+        }
+
+        [TestMethod]
+        public void TestMethod_103()
+        {
+            var str = @"abc_%{S-1-0}";
+            var ret = EventMessageConverter.ConvertFrom(str);
+            Assert.AreEqual("abc_Null Authority", ret);
+        }
+
+        [TestMethod]
+        public void TestMethod_104()
+        {
+            var str = @"%{S-1-0_abc";
+            var ret = EventMessageConverter.ConvertFrom(str);
+            Assert.AreEqual(str, ret);
+        }
+
+        [TestMethod]
+        public void TestMethod_105()
+        {
+            var str = @"%{%{S-1-0_abc";
+            var ret = EventMessageConverter.ConvertFrom(str);
+            Assert.AreEqual(str, ret);
+        }
+        [TestMethod]
+        public void TestMethod_106()
+        {
+            var str = @"%{%{S-1-0}_abc}";
+            var ret = EventMessageConverter.ConvertFrom(str);
+            Assert.AreEqual("%{Null Authority_abc}", ret);
+        }
+        [TestMethod]
+        public void TestMethod_107()
+        {
+            var str = @"%{S-1-0}%{S-1-0}";
+            var ret = EventMessageConverter.ConvertFrom(str);
+            Assert.AreEqual("Null AuthorityNull Authority", ret);
+        }
+
+        [TestMethod]
+        public void TestMethod_108()
+        {
+            var str = "%{S-1-0}\r\n%{S-1-0}";
+            var ret = EventMessageConverter.ConvertFrom(str);
+            Assert.AreEqual("Null Authority\r\nNull Authority", ret);
+        }
+
+        [TestMethod]
+        public void TestMethod_109()
+        {
+            var str = "%{S-XX-XXX}\r\n%{S-1-0}";
+            var ret = EventMessageConverter.ConvertFrom(str);
+            Assert.AreEqual("%{S-XX-XXX}\r\nNull Authority", ret);
+        }
+
+        [TestMethod]
+        public void TestMethod_110()
+        {
+            var str = "%{S-1-0}\r\n%{S-XX-XXX}";
+            var ret = EventMessageConverter.ConvertFrom(str);
+            Assert.AreEqual("Null Authority\r\n%{S-XX-XXX}", ret);
+        }
+        [TestMethod]
+        public void TestMethod_111()
+        {
+            var str = "%{S-XX-XXX\r\n%{S-1-0}";
+            var ret = EventMessageConverter.ConvertFrom(str);
+            Assert.AreEqual("%{S-XX-XXX\r\nNull Authority", ret);
+        }
+        [TestMethod]
+        public void TestMethod_112()
+        {
+            var str = "%{S-1-0\r\n%{S-XX-XXX}";
+            var ret = EventMessageConverter.ConvertFrom(str);
+            Assert.AreEqual(str, ret);
+        }
+
+        [TestMethod]
+        public void TestMethod_201()
+        {
+            var str = "%{S-1-5-21-999-501}\r\n%{S-XX-XXX}";
+            var ret = EventMessageConverter.ConvertFrom(str);
+            Assert.AreEqual("Guest\r\n%{S-XX-XXX}", ret);
+        }
+        [TestMethod]
+        public void TestMethod_202()
+        {
+            var str = "%{S-1-5-21-XXX-501}\r\n%{S-XX-XXX}";
+            var ret = EventMessageConverter.ConvertFrom(str);
+            Assert.AreEqual("%{S-1-5-21-XXX-501}\r\n%{S-XX-XXX}", ret);
+        }
+        [TestMethod]
+        public void TestMethod_203()
+        {
+            var str = "%{S-1-5-7}\r\n%{S-1-5-21-XXX-501}\r\n%{S-XX-XXX}";
+            var ret = EventMessageConverter.ConvertFrom(str);
+            Assert.AreEqual("Anonymous\r\n%{S-1-5-21-XXX-501}\r\n%{S-XX-XXX}", ret);
+        }
     }
 }

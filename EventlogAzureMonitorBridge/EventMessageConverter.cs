@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace EventlogAzureMonitorBridge
 {
@@ -18,7 +19,35 @@ namespace EventlogAzureMonitorBridge
             return emc.Convert(mes);
         }
 
-
+        Func<LinkedList<object>, string, bool>[] ReplaceSelector = new Func<LinkedList<object>, string, bool>[]
+        {
+            (build, num) => // MODE 0
+            {
+                if (NumberMessageTable.TryGetValue(int.Parse(num), out var str))
+                {
+                    build.AddFirst(str);
+                    return true;
+                }
+                return false;
+            },
+            (build, num) => // MODE 1
+            {
+                if (SecurityIdentifiersTable.TryGetValue(num, out var str))
+                {
+                    build.AddFirst(str);
+                    return true;
+                }
+                foreach( var kv in SecurityIdentifiersRegexTable)
+                {
+                    if( Regex.IsMatch(num, kv.Key))
+                    {
+                        build.AddFirst(kv.Value);
+                        return true;
+                    }
+                }
+                return false;
+            },
+        };
 
         /// <summary>
         /// Convert Message
@@ -27,20 +56,49 @@ namespace EventlogAzureMonitorBridge
         /// <returns></returns>
         public string Convert(string mes)
         {
+            var pre = new[] { "%%", "%{" };
             var build = new LinkedList<object>();
             var len = mes.Length;
             var st = len;
             var ed = len;
-            for (var limit = 5000; limit > 0 ; limit-- )
+            for (var limit = 5000; limit > 0; limit--)
             {
-                var pp = mes.LastIndexOf("%%", st);
+                Func<int, bool> LoopCondition;
+                int mode;
+                var isError = false;
+                var pp1 = mes.LastIndexOf(pre[0], st);
+                var pp2 = mes.LastIndexOf(pre[1], st);
+                var pp = Math.Max(pp1, pp2);
+                var post = "";
+                if (pp1 > pp2)
+                {
+                    mode = 0;
+                    LoopCondition = i => i < ed && char.IsDigit(mes[i]);
+                }
+                else
+                {
+                    mode = 1;
+                    LoopCondition = i => i < ed && mes[i] != '}' && mes[i] != '\r' && mes[i] != '\n';
+                }
                 if (pp >= 0)
                 {
                     var num = "";
                     int i;
-                    for (i = pp + 2; i < ed && char.IsDigit(mes[i]); i++)
+                    for (i = pp + 2; LoopCondition(i); i++)
                     {
                         num += mes[i];
+                    }
+                    if (mode == 1 && i < len)
+                    {
+                        if (mes[i] == '}')
+                        {
+                            i++;
+                            post = "}";
+                        }
+                        else
+                        {
+                            isError = true;
+                        }
                     }
                     if (i < ed)
                     {
@@ -49,13 +107,9 @@ namespace EventlogAzureMonitorBridge
                     }
                     if (num != "")
                     {
-                        if (Table.TryGetValue(int.Parse(num), out var str))
+                        if (isError || ReplaceSelector[mode](build, num) == false)
                         {
-                            build.AddFirst(str);
-                        }
-                        else
-                        {
-                            build.AddFirst($"%%{num}");
+                            build.AddFirst($"{pre[mode]}{num}{post}");
                         }
                         ed = pp;
                     }

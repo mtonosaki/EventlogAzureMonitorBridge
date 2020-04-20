@@ -7,7 +7,7 @@ namespace EventlogAzureMonitorBridge
         /// message table
         /// </summary>
         /// <seealso cref="https://stackoverflow.com/questions/33498244/marshaling-a-message-table-resource"/>
-        static readonly IReadOnlyDictionary<int, string> Table = new Dictionary<int, string>
+        static readonly IReadOnlyDictionary<int, string> NumberMessageTable = new Dictionary<int, string>
         {
             [279] = "Undefined Access (no effect) Bit 7",
             [1536] = "Unused message ID",
