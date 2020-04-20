@@ -21,30 +21,5 @@ namespace EventlogAzureMonitorBridge
         public string OpCode { get; set; }      //- Info
         public string TaskCategory { get; set; } //- None
         public string Keywords { get; set; }    //- 
-
-        static readonly List<(string From, string To)> ConvTable = new List<(string From, string To)>
-        {
-            ("%%1832" ,"Identification"),
-            ("%%1833" ,"Impersonation"),
-            ("%%1840" ,"Delegation"),
-            ("%%1841" ,"Denied by Process Trust Label ACE"),
-            ("%%1842" ,"Yes"),
-            ("%%1843" ,"No"),
-            ("%%1844" ,"System"),
-            ("%%1845" ,"Not Available"),
-            ("%%1846" ,"Default"),
-            ("%%1847" ,"DisallowMmConfig"),
-            ("%%1848" ,"Off"),
-            ("%%1849" ,"Auto"),
-        };
-
-        public static string ReplaceMessage(string mes)
-        {
-            foreach (var conv in ConvTable)
-            {
-                mes = mes.Replace(conv.From, conv.To);
-            }
-            return mes;
-        }
     }
 }

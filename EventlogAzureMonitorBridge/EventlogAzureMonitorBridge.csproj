@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>dotnet-EventlogAzureMonitorBridge-AA726ADC-E752-4B4E-8F75-3CE12B15DA0D</UserSecretsId>
     <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>

@@ -68,16 +68,11 @@ namespace EventlogAzureMonitorBridge
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-#if DEBUG
-            await Task.Delay(1, stoppingToken);
-#else
-            await Task.Delay(5531, stoppingToken);
-#endif
             while (!stoppingToken.IsCancellationRequested)
             {
-                var w1 = await listener.ListenAsync(stoppingToken);
-                var w2 = await uploader.UploadAsync(stoppingToken);
-                await Task.Delay(Math.Min(w1, w2), stoppingToken);
+                var t1 = await listener.ListenAsync(stoppingToken);
+                var t2 = await uploader.UploadAsync(stoppingToken);
+                await Task.Delay(Math.Min(t1, t2), stoppingToken);
             }
         }
     }

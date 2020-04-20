@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// (c) 2020 Manabu Tonosaki
+// Licensed under the MIT license.
+
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,6 +19,15 @@ namespace EventlogAzureMonitorBridge
     {
         public Queue<EventlogMessage> Messages { get; set; }
         public ILogger<Worker> Logger { get; set; }
+
+        public async Task ExecAsync(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                var ms = await ListenAsync(stoppingToken);
+                await Task.Delay(ms, stoppingToken);
+            }
+        }
 
         public async Task<int> ListenAsync(CancellationToken stoppingToken)
         {
@@ -48,7 +60,7 @@ namespace EventlogAzureMonitorBridge
                                 EventRecordID = e.Index,
                                 User = e.UserName,
                                 Computer = e.MachineName,
-                                Message = EventlogMessage.ReplaceMessage(e.Message),
+                                Message = e.Message,
                             };
                             Messages.Enqueue(item);
                             enqueueCount++;
@@ -58,13 +70,15 @@ namespace EventlogAzureMonitorBridge
                         }
                     }
                 }
+                Logger.LogTrace($"{DateTime.Now} : Received {enqueueCount} Eventlog(s) ");
                 if (enqueueCount > 0)
                 {
                     await SaveStateAsync();
                 }
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
+                Logger.LogError(ex.Message);
             }
             catch (Exception ex)
             {
