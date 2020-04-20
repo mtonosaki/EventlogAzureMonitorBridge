@@ -18,6 +18,8 @@ namespace EventlogAzureMonitorBridge
             return emc.Convert(mes);
         }
 
+
+
         /// <summary>
         /// Convert Message
         /// </summary>
@@ -25,11 +27,11 @@ namespace EventlogAzureMonitorBridge
         /// <returns></returns>
         public string Convert(string mes)
         {
-            var ret = new StringBuilder();
+            var build = new LinkedList<object>();
             var len = mes.Length;
             var st = len;
             var ed = len;
-            for (; ; )
+            for (var limit = 5000; limit > 0 ; limit-- )
             {
                 var pp = mes.LastIndexOf("%%", st);
                 if (pp >= 0)
@@ -42,18 +44,18 @@ namespace EventlogAzureMonitorBridge
                     }
                     if (i < ed)
                     {
-                        ret.Insert(0, mes.Substring(i, ed - i));    // after NUMBER
+                        build.AddFirst((i, ed - i));    // after NUMBER
                         ed = i;
                     }
                     if (num != "")
                     {
                         if (Table.TryGetValue(int.Parse(num), out var str))
                         {
-                            ret.Insert(0, str);
+                            build.AddFirst(str);
                         }
                         else
                         {
-                            ret.Insert(0, $"%%{num}");
+                            build.AddFirst($"%%{num}");
                         }
                         ed = pp;
                     }
@@ -61,8 +63,21 @@ namespace EventlogAzureMonitorBridge
                 }
                 else
                 {
-                    ret.Insert(0, mes.Substring(0, ed));
+                    build.AddFirst((0, ed));
                     break;
+                }
+            }
+            var ret = new StringBuilder();
+            foreach (var node in build)
+            {
+                if (node is ValueTuple<int, int> ii)
+                {
+                    ret.Append(mes.Substring(ii.Item1, ii.Item2));
+                }
+                else
+                if (node is string str)
+                {
+                    ret.Append(str);
                 }
             }
             return ret.ToString();
