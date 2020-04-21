@@ -5,9 +5,22 @@
     <UserSecretsId>dotnet-EventlogAzureMonitorBridge-AA726ADC-E752-4B4E-8F75-3CE12B15DA0D</UserSecretsId>
     <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>EventlogAzureMonitorBridge.ico</ApplicationIcon>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>(c) 2020 Manabu Tonosaki</Copyright>
+    <PackageIcon>EventlogAzureMonitorBridgeIcon.png</PackageIcon>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <AssemblyVersion>1.0.2.0</AssemblyVersion>
+    <FileVersion>1.0.2.0</FileVersion>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\@Res\EventlogAzureMonitorBridgeIcon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.3" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.1.3" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
